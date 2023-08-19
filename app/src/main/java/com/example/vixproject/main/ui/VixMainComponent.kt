@@ -3,6 +3,7 @@ package com.example.vixproject.main.ui
 import android.graphics.drawable.Icon
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
@@ -28,9 +29,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
@@ -42,13 +45,17 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.vixproject.main.domain.useCase.GetNodes
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.vixproject.R
 import com.example.vixproject.main.data.NodeRepositoryImp
+import com.example.vixproject.main.domain.model.Node
 import com.example.vixproject.main.domain.model.VideoData
 import com.example.vixproject.main.ui.node.HeroNodeComponent
 import com.example.vixproject.main.ui.node.NodeComponent
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import java.io.BufferedReader
 
 private const val init = "Inicio"
@@ -59,16 +66,16 @@ fun MainComponent(
     mainViewModel: MainViewModel = viewModel(factory = MainViewModel.Factory),
     goToDetail: (VideoData) -> Unit
 ) {
-    val nodes by mainViewModel.getNodes().collectAsState(initial = emptyList())
+    val nodes = mainViewModel.nodes
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
             Row(
-                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxSize()
             ) {
                 Image(
@@ -89,8 +96,8 @@ fun MainComponent(
                         Text(
                             stringResource(id = R.string.btn_test_premium),
                             color = MaterialTheme.colorScheme.onBackground,
-                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold)
-                            , modifier = Modifier.padding(horizontal = 8.dp)
+                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
+                            modifier = Modifier.padding(horizontal = 8.dp)
                         )
                     }
                     Button(
@@ -127,9 +134,7 @@ fun MainComponent(
         item {
             //list of badgeds
             LazyRow(
-                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(
-                    8.dp
-                )
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(mainViewModel.getBadges) {
                     FilterChip(
@@ -152,6 +157,9 @@ fun MainComponent(
                 }
         }
     }
+    LaunchedEffect(Unit) {
+        mainViewModel.loadNodes()
+    }
 }
 
 
@@ -161,6 +169,15 @@ class MainViewModel(
 ) {
 
     val getBadges by mutableStateOf(listOf<String>(init, "Cine", "Novelas", "Premium"))
+
+    var nodes: List<Node> by mutableStateOf(emptyList())
+        private set
+
+    fun loadNodes() {
+        viewModelScope.launch {
+            nodes = getNodes().first()
+        }
+    }
 
     companion object {
         const val TAG = "MainViewModel"
