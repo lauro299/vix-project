@@ -13,6 +13,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.vixproject.main.ui.MainComponent
 import com.example.vixproject.splash.ui.SplashComponent
 import com.example.vixproject.ui.theme.VixProjectTheme
 
@@ -33,7 +34,7 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier.fillMaxSize(),
                             color = MaterialTheme.colorScheme.background
                         ) {
-                            Text("Main")
+                            MainComponent()
                         }
                     }
                 }
