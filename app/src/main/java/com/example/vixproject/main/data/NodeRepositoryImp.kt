@@ -33,7 +33,7 @@ class NodeRepositoryImp(private val dataString: String): NodeRepository{
                         else -> NodeType.NORMAL
                     }
                 )
-            })
+            }.filterNot { it.list.isEmpty() })
         }
     }
 }
