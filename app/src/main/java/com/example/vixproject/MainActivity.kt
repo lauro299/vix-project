@@ -51,7 +51,9 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier.fillMaxSize(),
                             color = MaterialTheme.colorScheme.background
                         ) {
-                            DetailComponent(id = it.arguments?.getString("videoId") ?: "")
+                            DetailComponent(id = it.arguments?.getString("videoId") ?: ""){
+                                navController.popBackStack()
+                            }
                         }
                     }
                 }

@@ -11,12 +11,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,6 +43,7 @@ import coil.compose.AsyncImage
 import com.example.vixproject.R
 import com.example.vixproject.main.data.NodeRepositoryImp
 import com.example.vixproject.main.domain.model.VideoData
+import com.example.vixproject.main.domain.model.genresAsString
 import com.example.vixproject.main.domain.useCase.GetDetailVideo
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -49,7 +53,8 @@ import java.io.BufferedReader
 @Composable
 fun DetailComponent(
     detailViewModel: DetailViewModel = androidx.lifecycle.viewmodel.compose.viewModel(factory = DetailViewModel.Factory),
-    id: String
+    id: String,
+    goBack: () -> Unit
 ) {
     val data = detailViewModel.videoData
     Box(modifier = Modifier.fillMaxSize()) {
@@ -82,6 +87,14 @@ fun DetailComponent(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
+                IconButton(onClick = { goBack() }) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = stringResource(id = R.string.btn_watch_now),
+                    )
+                }
+            }
+            item {
                 Spacer(modifier = Modifier.fillParentMaxHeight(0.3f))
             }
             item {
@@ -91,17 +104,26 @@ fun DetailComponent(
                 Text(data.description, maxLines = 3)
             }
             item {
-                Text(text = "Comedia, Viajes ")
+                Text(text = data.genresAsString())
             }
             item {
-                Button(onClick = { /*TODO*/ }, modifier = Modifier.fillMaxWidth()) {
+                Button(
+                    onClick = { /*TODO*/ },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = MaterialTheme.shapes.medium
+                ) {
                     Icon(
                         imageVector = Icons.Default.PlayArrow, contentDescription = stringResource(
                             id = R.string.btn_watch_now
-                        )
+                        ),
+                        tint = MaterialTheme.colorScheme.onBackground
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = stringResource(id = R.string.btn_watch_now))
+                    Text(
+                        text = stringResource(id = R.string.btn_watch_now),
+                        color = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.padding(8.dp)
+                    )
                 }
             }
             item {
@@ -112,21 +134,27 @@ fun DetailComponent(
                                 id = R.string.label_more
                             )
                         )
-                    })
+                    },
+                        shape = CircleShape
+                    )
                     FilterChip(selected = false, onClick = { /*TODO*/ }, label = {
                         Text(
                             text = stringResource(
                                 id = R.string.label_others
                             )
                         )
-                    })
-                    FilterChip(selected = false, onClick = { /*TODO*/ }, label = {
+                    },
+                        shape = CircleShape
+                    )
+                    FilterChip(selected = true, onClick = { /*TODO*/ }, label = {
                         Text(
                             text = stringResource(
                                 id = R.string.label_details
                             )
                         )
-                    })
+                    },
+                        shape = CircleShape
+                    )
                 }
             }
             item {
@@ -185,7 +213,19 @@ class DetailViewModel(
         }
     }
 
-    var videoData: VideoData by mutableStateOf(VideoData("", "", "", "", "", year = "", director = emptyList(), staff = emptyList()))
+    var videoData: VideoData by mutableStateOf(
+        VideoData(
+            "",
+            "",
+            "",
+            "",
+            "",
+            year = "",
+            director = emptyList(),
+            staff = emptyList(),
+            genres = emptyList()
+        )
+    )
         private set
     //val id = savedStateHandle["videoId"] ?: ""
 

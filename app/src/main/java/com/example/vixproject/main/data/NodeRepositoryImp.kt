@@ -43,15 +43,22 @@ class NodeRepositoryImp(private val dataString: String) : NodeRepository {
                                 ?: it.node.heroTarget?.imageAssets?.find { it.imageRole == portrait }?.link
                                 ?: "",
                             year = it.node.video?.copyrightYear?.toString() ?: "",
-                            director = it.node.video?.contributors?.filter { it.roles.contains(
-                                director
-                            ) }
+                            director = it.node.video?.contributors
+                                ?.filter {
+                                    it.roles.contains(
+                                        director
+                                    )
+                                }
                                 ?.map { it.name } ?: emptyList(),
-                            staff = it.node.video?.contributors?.filterNot { it.roles.contains(
-                                director
-                            ) }
+                            staff = it.node.video?.contributors
+                                ?.filterNot {
+                                    it.roles.contains(
+                                        director
+                                    )
+                                }
                                 ?.map { it.name }
                                 ?: emptyList(),
+                            genres = it.node.video?.genres ?: emptyList()
                         )
                     } ?: emptyList(),
                     type = when (it.node.moduleType) {

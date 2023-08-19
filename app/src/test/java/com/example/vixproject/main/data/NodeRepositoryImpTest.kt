@@ -9598,6 +9598,7 @@ class NodeRepositoryImpTest{
                     Assert.assertTrue(it.imageBackUrl.isNotEmpty())
                     Assert.assertTrue(it.director.isNotEmpty())
                     Assert.assertTrue(it.staff.isNotEmpty())
+                    Assert.assertTrue(it.genres.isNotEmpty())
                 }
             }
         }

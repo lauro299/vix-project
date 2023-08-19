@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Badge
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -34,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -48,6 +50,8 @@ import com.example.vixproject.main.domain.model.VideoData
 import com.example.vixproject.main.ui.node.HeroNodeComponent
 import com.example.vixproject.main.ui.node.NodeComponent
 import java.io.BufferedReader
+
+private const val init = "Inicio"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -79,18 +83,22 @@ fun MainComponent(
                 ) {
                     OutlinedButton(
                         onClick = { /*TODO*/ },
-                        border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
+                        border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                        contentPadding = PaddingValues(0.dp),
                     ) {
                         Text(
                             stringResource(id = R.string.btn_test_premium),
-                            color = MaterialTheme.colorScheme.onBackground
+                            color = MaterialTheme.colorScheme.onBackground,
+                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold)
+                            , modifier = Modifier.padding(horizontal = 8.dp)
                         )
                     }
                     Button(
                         onClick = { /*TODO*/ },
                         shape = CircleShape,
                         contentPadding = PaddingValues(0.dp),
-                        modifier = Modifier.size(48.dp)
+                        modifier = Modifier.size(48.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Search, contentDescription = stringResource(
@@ -102,7 +110,8 @@ fun MainComponent(
                         onClick = { /*TODO*/ },
                         shape = CircleShape,
                         contentPadding = PaddingValues(0.dp),
-                        modifier = Modifier.size(48.dp)
+                        modifier = Modifier.size(48.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
                     ) {
                         Icon(
                             imageVector = Icons.Filled.AccountCircle,
@@ -122,18 +131,23 @@ fun MainComponent(
                     8.dp
                 )
             ) {
-                items(mainViewModel.getBadges){
-                    FilterChip(selected = it=="Inicio", onClick = { /*TODO*/ }, label = { Text(text = it) }, shape = CircleShape)
+                items(mainViewModel.getBadges) {
+                    FilterChip(
+                        selected = it == init,
+                        onClick = { /*TODO*/ },
+                        label = { Text(text = it) },
+                        shape = CircleShape
+                    )
                 }
             }
         }
         items(nodes) {
             if (it.isHero())
-                HeroNodeComponent(node = it){
+                HeroNodeComponent(node = it) {
                     goToDetail(it)
                 }
             else
-                NodeComponent(node = it){
+                NodeComponent(node = it) {
                     goToDetail(it)
                 }
         }
@@ -146,7 +160,7 @@ class MainViewModel(
 ) : ViewModel(
 ) {
 
-    val getBadges by mutableStateOf(listOf<String>("Inicio", "Cine", "Novelas", "Premium"))
+    val getBadges by mutableStateOf(listOf<String>(init, "Cine", "Novelas", "Premium"))
 
     companion object {
         const val TAG = "MainViewModel"

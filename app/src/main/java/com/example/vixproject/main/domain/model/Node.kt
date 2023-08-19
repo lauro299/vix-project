@@ -16,8 +16,11 @@ data class VideoData(
     val imageBackUrl: String,
     val year: String,
     val director: List<String>,
-    val staff: List<String>
+    val staff: List<String>,
+    val genres: List<String>
 )
+
+fun VideoData.genresAsString() = genres.joinToString(", ")
 
 enum class NodeType {
     HERO,
