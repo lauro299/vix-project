@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">VixProject</string>
+    <string name="btn_test_premium">Prueba Premium</string>
+    <string name="label_search">Buscar</string>
+    <string name="btn_watch_now">Ver ahora</string>
+    <string name="label_details">Detalles</string>
+    <string name="label_more">más</string>
+    <string name="label_others">Otros recomiendan</string>
+    <string name="label_release">Lanzamiento %1$s</string>
+    <string name="label_director">Director:</string>
+    <string name="label_staff">Elenco:</string>
 </resources>

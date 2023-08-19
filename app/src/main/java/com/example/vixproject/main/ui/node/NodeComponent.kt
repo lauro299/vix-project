@@ -1,5 +1,6 @@
 package com.example.vixproject.main.ui.node
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -18,14 +19,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.vixproject.main.domain.model.Node
+import com.example.vixproject.main.domain.model.VideoData
 
 @Composable
-fun NodeComponent(node: Node) {
+fun NodeComponent(node: Node, goToDetail: (VideoData) -> Unit) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text(text = node.name, style = MaterialTheme.typography.headlineMedium)
+        Text(text = node.name, style = MaterialTheme.typography.headlineSmall)
         LazyRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             items(node.list) { videoData ->
-                Card(modifier = Modifier.fillParentMaxWidth(0.4f), elevation = CardDefaults.cardElevation()) {
+                Card(modifier = Modifier.fillParentMaxWidth(0.4f)
+                    .clickable {
+                        goToDetail(videoData)
+                    }, elevation = CardDefaults.cardElevation()) {
                     AsyncImage(
                         model = videoData.imageUrl,
                         contentDescription = videoData.name,
