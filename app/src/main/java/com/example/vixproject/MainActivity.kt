@@ -30,7 +30,11 @@ class MainActivity : ComponentActivity() {
                 NavHost(navController = navController, startDestination = "splash") {
                     composable("splash") {
                         SplashComponent {
-                            navController.navigate("main")
+                            navController.navigate("main"){
+                                popUpTo("splash"){
+                                    inclusive = true
+                                }
+                            }
                         }
                     }
                     composable("main") {
