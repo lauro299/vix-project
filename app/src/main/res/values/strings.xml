@@ -9,4 +9,5 @@
     <string name="label_release">Lanzamiento %1$s</string>
     <string name="label_director">Director:</string>
     <string name="label_staff">Elenco:</string>
+    <string name="label_not_available">No se encuentra disponible.</string>
 </resources>
