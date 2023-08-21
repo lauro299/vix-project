@@ -12,6 +12,7 @@ import com.example.vixproject.R
 import com.example.vixproject.main.data.NodeRepositoryImp
 import com.example.vixproject.main.domain.model.Node
 import com.example.vixproject.main.domain.useCase.GetNodes
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.io.BufferedReader
@@ -28,9 +29,14 @@ class MainViewModel(
     var nodes: List<Node> by mutableStateOf(emptyList())
         private set
 
-    fun loadNodes() {
+    init {
+        loadNodes()
+    }
+    private fun loadNodes() {
         viewModelScope.launch {
-            nodes = getNodes().first()
+            getNodes().collect{
+                nodes = it
+            }
         }
     }
 
