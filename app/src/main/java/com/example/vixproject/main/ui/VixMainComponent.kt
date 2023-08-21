@@ -47,7 +47,7 @@ fun MainComponent(
     mainViewModel: MainViewModel = viewModel(factory = MainViewModel.Factory),
     goToDetail: (VideoData) -> Unit
 ) {
-    val nodes = mainViewModel.nodes
+    val nodes by mainViewModel.nodesFlow.collectAsStateWithLifecycle()//mainViewModel.nodes
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()

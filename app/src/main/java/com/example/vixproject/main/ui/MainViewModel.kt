@@ -13,15 +13,17 @@ import com.example.vixproject.main.data.NodeRepositoryImp
 import com.example.vixproject.main.domain.model.Node
 import com.example.vixproject.main.domain.useCase.GetNodes
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.io.BufferedReader
 
-const val LABEL_INIT= "Inicio"
+const val LABEL_INIT = "Inicio"
 
 class MainViewModel(
     val getNodes: GetNodes
@@ -30,19 +32,9 @@ class MainViewModel(
 
     val getBadges by mutableStateOf(listOf<String>(LABEL_INIT, "Cine", "Novelas", "Premium"))
 
-    var nodes: List<Node> by mutableStateOf(emptyList())
-        private set
-
-    private val nodeListener = getNodes()
-        .onEach { nodes = it }
+    var nodesFlow = getNodes()
         .flowOn(Dispatchers.Default)
-        .launchIn(viewModelScope)
-
-    override fun onCleared() {
-        super.onCleared()
-        nodeListener.cancel()
-    }
-
+        .stateIn(viewModelScope, started = SharingStarted.Eagerly, initialValue = emptyList())
     companion object {
         const val TAG = "MainViewModel"
         val Factory: ViewModelProvider.Factory = viewModelFactory {
