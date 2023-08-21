@@ -12,8 +12,12 @@ import com.example.vixproject.R
 import com.example.vixproject.main.data.NodeRepositoryImp
 import com.example.vixproject.main.domain.model.Node
 import com.example.vixproject.main.domain.useCase.GetNodes
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.io.BufferedReader
 
@@ -29,15 +33,14 @@ class MainViewModel(
     var nodes: List<Node> by mutableStateOf(emptyList())
         private set
 
-    init {
-        loadNodes()
-    }
-    private fun loadNodes() {
-        viewModelScope.launch {
-            getNodes().collect{
-                nodes = it
-            }
-        }
+    private val nodeListener = getNodes()
+        .onEach { nodes = it }
+        .flowOn(Dispatchers.Default)
+        .launchIn(viewModelScope)
+
+    override fun onCleared() {
+        super.onCleared()
+        nodeListener.cancel()
     }
 
     companion object {
