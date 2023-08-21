@@ -3,6 +3,7 @@ package com.example.vixproject.main.ui
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +19,7 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -28,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -48,94 +51,102 @@ fun MainComponent(
     goToDetail: (VideoData) -> Unit
 ) {
     val nodes by mainViewModel.nodesFlow.collectAsStateWithLifecycle()//mainViewModel.nodes
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        item {
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.vix_logo_unicolor),
-                    contentDescription = null,
-                    modifier = Modifier.width(54.dp)
-                )
+    if(nodes.isEmpty()){
+        Box(Modifier.fillMaxSize()) {
+            CircularProgressIndicator(
+                modifier=Modifier.align(Alignment.Center)
+            )
+        }
+    } else {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            item {
                 Row(
-                    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(
-                        8.dp
-                    ),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    OutlinedButton(
-                        onClick = { /*TODO*/ },
-                        border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
-                        contentPadding = PaddingValues(0.dp),
-                    ) {
-                        Text(
-                            stringResource(id = R.string.btn_test_premium),
-                            color = MaterialTheme.colorScheme.onBackground,
-                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
-                            modifier = Modifier.padding(horizontal = 8.dp)
-                        )
-                    }
-                    Button(
-                        onClick = { /*TODO*/ },
-                        shape = CircleShape,
-                        contentPadding = PaddingValues(0.dp),
-                        modifier = Modifier.size(48.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Search, contentDescription = stringResource(
-                                id = R.string.label_search
-                            ), tint = MaterialTheme.colorScheme.onBackground
-                        )
-                    }
-                    Button(
-                        onClick = { /*TODO*/ },
-                        shape = CircleShape,
-                        contentPadding = PaddingValues(0.dp),
-                        modifier = Modifier.size(48.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.AccountCircle,
-                            contentDescription = stringResource(
-                                id = R.string.label_search
-                            ),
-                            tint = MaterialTheme.colorScheme.onBackground
-                        )
-                    }
-                }
-            }
-        }
-        item {
-            //list of badgeds
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(mainViewModel.getBadges) {
-                    FilterChip(
-                        selected = it == LABEL_INIT,
-                        onClick = { /*TODO*/ },
-                        label = { Text(text = it) },
-                        shape = CircleShape
+                    Image(
+                        painter = painterResource(id = R.drawable.vix_logo_unicolor),
+                        contentDescription = null,
+                        modifier = Modifier.width(54.dp)
                     )
+                    Row(
+                        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(
+                            8.dp
+                        ),
+                    ) {
+                        OutlinedButton(
+                            onClick = { /*TODO*/ },
+                            border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                            contentPadding = PaddingValues(0.dp),
+                        ) {
+                            Text(
+                                stringResource(id = R.string.btn_test_premium),
+                                color = MaterialTheme.colorScheme.onBackground,
+                                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
+                                modifier = Modifier.padding(horizontal = 8.dp)
+                            )
+                        }
+                        Button(
+                            onClick = { /*TODO*/ },
+                            shape = CircleShape,
+                            contentPadding = PaddingValues(0.dp),
+                            modifier = Modifier.size(48.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Search, contentDescription = stringResource(
+                                    id = R.string.label_search
+                                ), tint = MaterialTheme.colorScheme.onBackground
+                            )
+                        }
+                        Button(
+                            onClick = { /*TODO*/ },
+                            shape = CircleShape,
+                            contentPadding = PaddingValues(0.dp),
+                            modifier = Modifier.size(48.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.AccountCircle,
+                                contentDescription = stringResource(
+                                    id = R.string.label_search
+                                ),
+                                tint = MaterialTheme.colorScheme.onBackground
+                            )
+                        }
+                    }
                 }
             }
-        }
-        items(nodes) {
-            if (it.isHero())
-                HeroNodeComponent(node = it) {
-                    goToDetail(it)
+            item {
+                //list of badgeds
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(mainViewModel.getBadges) {
+                        FilterChip(
+                            selected = it == LABEL_INIT,
+                            onClick = { /*TODO*/ },
+                            label = { Text(text = it) },
+                            shape = CircleShape
+                        )
+                    }
                 }
-            else
-                NodeComponent(node = it) {
-                    goToDetail(it)
-                }
+            }
+            items(nodes) {
+                if (it.isHero())
+                    HeroNodeComponent(node = it) {
+                        goToDetail(it)
+                    }
+                else
+                    NodeComponent(node = it) {
+                        goToDetail(it)
+                    }
+            }
         }
     }
 }
