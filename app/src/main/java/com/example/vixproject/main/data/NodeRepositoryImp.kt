@@ -21,6 +21,8 @@ import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import org.koin.core.annotation.Named
+import org.koin.core.annotation.Singleton
 
 private const val director = "DIRECTOR"
 
@@ -28,7 +30,11 @@ private const val portrait = "VERTICAL_HERO"
 
 private const val heroType = "HERO_CAROUSEL"
 
-class NodeRepositoryImp(private val dataString: String) : NodeRepository {
+@Singleton(binds = [NodeRepository::class])
+class NodeRepositoryImp(
+    @Named("jsonString")
+    private val dataString: String
+) : NodeRepository {
 
     private val json = Json {
         isLenient = false

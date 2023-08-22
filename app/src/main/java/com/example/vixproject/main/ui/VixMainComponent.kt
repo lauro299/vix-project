@@ -42,12 +42,13 @@ import com.example.vixproject.R
 import com.example.vixproject.main.domain.model.VideoData
 import com.example.vixproject.main.ui.node.HeroNodeComponent
 import com.example.vixproject.main.ui.node.NodeComponent
+import org.koin.androidx.compose.koinViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainComponent(
-    mainViewModel: MainViewModel = viewModel(factory = MainViewModel.Factory),
+    mainViewModel: MainViewModel = koinViewModel(),//viewModel(factory = MainViewModel.Factory),
     goToDetail: (VideoData) -> Unit
 ) {
     val nodes = mainViewModel.nodesFlow//.collectAsStateWithLifecycle()//mainViewModel.nodes
@@ -75,7 +76,7 @@ fun MainComponent(
                         modifier = Modifier.width(54.dp)
                     )
                     Row(
-                        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(
+                        horizontalArrangement = Arrangement.spacedBy(
                             8.dp
                         ),
                     ) {

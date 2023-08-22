@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     kotlin("plugin.serialization") version "1.8.10"
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -31,11 +32,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
@@ -46,6 +47,14 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
+
+    applicationVariants.configureEach{
+        kotlin.sourceSets{
+            getByName(name){
+                kotlin.srcDirs("build/generated/ksp/${name}/kotlin")
+            }
         }
     }
 }
@@ -64,6 +73,10 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.4.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.0")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.0")
+    implementation("io.insert-koin:koin-androidx-compose:3.4.6")
+    implementation("io.insert-koin:koin-android:3.4.0")
+    implementation("io.insert-koin:koin-annotations:1.2.0")
+    ksp("io.insert-koin:koin-ksp-compiler:1.2.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")

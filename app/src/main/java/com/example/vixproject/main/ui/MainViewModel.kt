@@ -32,10 +32,12 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
+import org.koin.android.annotation.KoinViewModel
 import java.io.BufferedReader
 
 const val LABEL_INIT = "Inicio"
 
+@KoinViewModel
 class MainViewModel(
     val getStreamOfNode: GetStreamOfNode
 ) : ViewModel(
