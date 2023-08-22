@@ -4,9 +4,21 @@ import com.example.vixproject.main.domain.model.Node
 import com.example.vixproject.main.domain.model.NodeType
 import com.example.vixproject.main.domain.model.VideoData
 import com.example.vixproject.main.domain.repository.NodeRepository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMap
+import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.transform
+import kotlinx.coroutines.flow.transformLatest
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
@@ -26,48 +38,120 @@ class NodeRepositoryImp(private val dataString: String) : NodeRepository {
 
     private lateinit var listNodes: List<Node>
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun getNodes(): Flow<List<Node>> {
         return flow {
-            val data = json.decodeFromString<VixContainer>(dataString)
-            emit(data.data.uiPage.uiModules.edges.map {
-                Node(
-                    name = it.node.title,
-                    list = it.node.contents?.edges?.map {
-                        VideoData(
-                            id = it.node.video?.id ?: it.node.heroTarget?.id ?: "",
-                            name = it.node.video?.title ?: it.node.heroTarget?.title ?: "",
-                            imageUrl = it.node.image?.link ?: it.node.mobileFillImage?.link ?: "",
-                            description = it.node.video?.description
-                                ?: it.node.heroTarget?.description ?: "",
-                            imageBackUrl = it.node.video?.imageAssets?.find { it.imageRole == portrait }?.link
-                                ?: it.node.heroTarget?.imageAssets?.find { it.imageRole == portrait }?.link
-                                ?: "",
-                            year = it.node.video?.copyrightYear?.toString() ?: "",
-                            director = it.node.video?.contributors
-                                ?.filter {
-                                    it.roles.contains(
-                                        director
+            json.decodeFromString<VixContainer>(dataString)
+                .let {
+                    it.data.uiPage.uiModules.edges.asFlow()
+                        .flatMapLatest {
+                            flow {
+                                emit(
+                                    Node(
+                                        name = it.node.title,
+                                        list = it.node.contents?.edges?.map {
+                                            VideoData(
+                                                id = it.node.video?.id ?: it.node.heroTarget?.id
+                                                ?: "",
+                                                name = it.node.video?.title
+                                                    ?: it.node.heroTarget?.title
+                                                    ?: "",
+                                                imageUrl = it.node.image?.link
+                                                    ?: it.node.mobileFillImage?.link ?: "",
+                                                description = it.node.video?.description
+                                                    ?: it.node.heroTarget?.description ?: "",
+                                                imageBackUrl = it.node.video?.imageAssets?.find { it.imageRole == portrait }?.link
+                                                    ?: it.node.heroTarget?.imageAssets?.find { it.imageRole == portrait }?.link
+                                                    ?: "",
+                                                year = it.node.video?.copyrightYear?.toString()
+                                                    ?: "",
+                                                director = it.node.video?.contributors
+                                                    ?.filter {
+                                                        it.roles.contains(
+                                                            director
+                                                        )
+                                                    }
+                                                    ?.map { it.name } ?: emptyList(),
+                                                staff = it.node.video?.contributors
+                                                    ?.filterNot {
+                                                        it.roles.contains(
+                                                            director
+                                                        )
+                                                    }
+                                                    ?.map { it.name }
+                                                    ?: emptyList(),
+                                                genres = it.node.video?.genres ?: emptyList()
+                                            )
+                                        } ?: emptyList(),
+                                        type = when (it.node.moduleType) {
+                                            heroType -> NodeType.HERO
+                                            else -> NodeType.NORMAL
+                                        }
                                     )
-                                }
-                                ?.map { it.name } ?: emptyList(),
-                            staff = it.node.video?.contributors
-                                ?.filterNot {
-                                    it.roles.contains(
-                                        director
-                                    )
-                                }
-                                ?.map { it.name }
-                                ?: emptyList(),
-                            genres = it.node.video?.genres ?: emptyList()
+                                )
+                            }
+                        }
+                        .filterNot {
+                            it.list.isEmpty()
+                        }
+                        .toList()
+                        .let {
+                            listNodes = it
+                            emit(it)
+                        }
+                }
+        }
+    }
+
+    override fun getStreamNodes(): Flow<Node> {
+        return channelFlow {
+            json.decodeFromString<VixContainer>(dataString)
+                .data.uiPage.uiModules.edges
+                .forEach {
+                    send(
+                        Node(
+                            name = it.node.title,
+                            list = it.node.contents?.edges?.map {
+                                VideoData(
+                                    id = it.node.video?.id ?: it.node.heroTarget?.id
+                                    ?: "",
+                                    name = it.node.video?.title
+                                        ?: it.node.heroTarget?.title
+                                        ?: "",
+                                    imageUrl = it.node.image?.link
+                                        ?: it.node.mobileFillImage?.link ?: "",
+                                    description = it.node.video?.description
+                                        ?: it.node.heroTarget?.description ?: "",
+                                    imageBackUrl = it.node.video?.imageAssets?.find { it.imageRole == portrait }?.link
+                                        ?: it.node.heroTarget?.imageAssets?.find { it.imageRole == portrait }?.link
+                                        ?: "",
+                                    year = it.node.video?.copyrightYear?.toString()
+                                        ?: "",
+                                    director = it.node.video?.contributors
+                                        ?.filter {
+                                            it.roles.contains(
+                                                director
+                                            )
+                                        }
+                                        ?.map { it.name } ?: emptyList(),
+                                    staff = it.node.video?.contributors
+                                        ?.filterNot {
+                                            it.roles.contains(
+                                                director
+                                            )
+                                        }
+                                        ?.map { it.name }
+                                        ?: emptyList(),
+                                    genres = it.node.video?.genres ?: emptyList()
+                                )
+                            } ?: emptyList(),
+                            type = when (it.node.moduleType) {
+                                heroType -> NodeType.HERO
+                                else -> NodeType.NORMAL
+                            }
                         )
-                    } ?: emptyList(),
-                    type = when (it.node.moduleType) {
-                        heroType -> NodeType.HERO
-                        else -> NodeType.NORMAL
-                    }
-                )
-            }.filterNot { it.list.isEmpty() }
-                .also { listNodes = it })
+                    )
+                }
         }
     }
 

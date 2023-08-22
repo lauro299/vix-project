@@ -7,5 +7,7 @@ import kotlinx.coroutines.flow.Flow
 interface NodeRepository {
     fun getNodes(): Flow<List<Node>>
 
+    fun getStreamNodes():Flow<Node>
+
     fun getDetail(id:String): Flow<VideoData>
 }

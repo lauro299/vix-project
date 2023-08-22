@@ -12,29 +12,51 @@ import com.example.vixproject.R
 import com.example.vixproject.main.data.NodeRepositoryImp
 import com.example.vixproject.main.domain.model.Node
 import com.example.vixproject.main.domain.useCase.GetNodes
+import com.example.vixproject.main.domain.useCase.GetStreamOfNode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.observeOn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.transform
+import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
 import java.io.BufferedReader
 
 const val LABEL_INIT = "Inicio"
 
 class MainViewModel(
-    val getNodes: GetNodes
+    val getStreamOfNode: GetStreamOfNode
 ) : ViewModel(
 ) {
 
     val getBadges by mutableStateOf(listOf<String>(LABEL_INIT, "Cine", "Novelas", "Premium"))
+    var nodesFlow by mutableStateOf(emptyList<Node>())
+        private set
 
-    var nodesFlow = getNodes()
+    var nodesStream = getStreamOfNode()
+        .filterNot {
+            it.list.isEmpty()
+        }
         .flowOn(Dispatchers.Default)
-        .stateIn(viewModelScope, started = SharingStarted.Eagerly, initialValue = emptyList())
+        .onEach {
+            nodesFlow = nodesFlow + it
+        }
+        .flowOn(Dispatchers.Default)
+        .launchIn(viewModelScope)
+
+    //.stateIn(viewModelScope, started = SharingStarted.Eagerly, initialValue = emptyList())
     companion object {
         const val TAG = "MainViewModel"
         val Factory: ViewModelProvider.Factory = viewModelFactory {
@@ -53,8 +75,9 @@ class MainViewModel(
                             }
                             content.toString()
                         }
+                val nodeRepository = NodeRepositoryImp(result)
                 MainViewModel(
-                    getNodes = GetNodes(repository = NodeRepositoryImp(result))
+                    getStreamOfNode = GetStreamOfNode(repository = nodeRepository)
                 )
             }
         }

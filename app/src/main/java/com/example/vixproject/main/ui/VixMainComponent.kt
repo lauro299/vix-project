@@ -50,7 +50,7 @@ fun MainComponent(
     mainViewModel: MainViewModel = viewModel(factory = MainViewModel.Factory),
     goToDetail: (VideoData) -> Unit
 ) {
-    val nodes by mainViewModel.nodesFlow.collectAsStateWithLifecycle()//mainViewModel.nodes
+    val nodes = mainViewModel.nodesFlow//.collectAsStateWithLifecycle()//mainViewModel.nodes
     if(nodes.isEmpty()){
         Box(Modifier.fillMaxSize()) {
             CircularProgressIndicator(
